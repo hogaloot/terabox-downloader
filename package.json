@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "express": "^4.19.2",
-    "puppeteer": "^24.33.1"
+    "body-parser": "^1.20.2",
+    "puppeteer": "^24.3.1"
   }
 }
