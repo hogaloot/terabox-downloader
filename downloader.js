@@ -1,47 +1,42 @@
-// Puppeteer import
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
 
-// মূল ফাংশন
 async function captureDownload(link) {
-  let browser;
+  const browser = await puppeteer.launch({
+    headless: "new",
+
+    // 🔴 এই দুইটা লাইন সবচেয়ে গুরুত্বপূর্ণ
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+
+    // Puppeteer-র নিজের Chromium ব্যবহার করবে
+    executablePath: puppeteer.executablePath(),
+  });
 
   try {
-    // Render-এ bundled Chromium ব্যবহার করার জন্য
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
-      ]
-    });
-
     const page = await browser.newPage();
 
-    // Terabox লিংকে যাওয়া
     await page.goto(link, {
-      waitUntil: 'networkidle2',
-      timeout: 60000
+      waitUntil: "networkidle2",
+      timeout: 60000,
     });
 
-    // এখানে ভবিষ্যতে DOM extraction logic বসবে
-    // এখন ডেমো হিসেবে page URL ফেরত দিচ্ছি
+    // ⚠️ এখানে তোমার existing selector logic থাকবে
+    // উদাহরণ:
+    // await page.waitForSelector("a#download");
+    // const url = await page.$eval("a#download", el => el.href);
 
     return {
       ok: true,
-      downloadUrl: page.url()
+      downloadUrl: "https://v4.freeterabox.com/...",
     };
 
   } catch (err) {
     return {
       ok: false,
-      message: err.message
+      message: err.message,
     };
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await browser.close();
   }
 }
 
-// বাইরে export
 module.exports = { captureDownload };
