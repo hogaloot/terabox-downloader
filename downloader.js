@@ -1,37 +1,47 @@
-const puppeteer = require("puppeteer");
+// Puppeteer import
+const puppeteer = require('puppeteer');
 
+// মূল ফাংশন
 async function captureDownload(link) {
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-      "--no-zygote",
-      "--single-process"
-    ]
-  });
+  let browser;
 
-  const page = await browser.newPage();
+  try {
+    // Render-এ bundled Chromium ব্যবহার করার জন্য
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    });
 
-  await page.goto(link, { waitUntil: "networkidle2", timeout: 60000 });
+    const page = await browser.newPage();
 
-  const downloadUrl = await page.evaluate(() => {
-    const video = document.querySelector("video");
-    return video ? video.src : null;
-  });
+    // Terabox লিংকে যাওয়া
+    await page.goto(link, {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    });
 
-  await browser.close();
+    // এখানে ভবিষ্যতে DOM extraction logic বসবে
+    // এখন ডেমো হিসেবে page URL ফেরত দিচ্ছি
 
-  if (!downloadUrl) {
-    return { ok: false, message: "Download link not found" };
+    return {
+      ok: true,
+      downloadUrl: page.url()
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      message: err.message
+    };
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
-
-  return {
-    ok: true,
-    downloadUrl
-  };
 }
 
+// বাইরে export
 module.exports = { captureDownload };
